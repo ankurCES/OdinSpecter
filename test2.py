@@ -10,12 +10,24 @@ import socket
 import json
 import threading
 import signal
+import pathlib
+import textwrap
+import google.generativeai as genai
+from IPython.display import display, Markdown
+from gtts import gTTS
+import speech_recognition as sr
+
 try:
     from driver.Whisplay import WhisPlayBoard
 except ImportError:
     print("Error: WhisPlay driver not found.")
     sys.exit(1)
 from utils import ColorUtils, ImageUtils, TextUtils
+
+
+GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
+genai.configure(api_key=GOOGLE_GEMINI_API_KEY)
+model = genai.GenerativeModel('gemini-pro')
 
 scroll_thread = None
 scroll_stop_event = threading.Event()
@@ -135,6 +147,30 @@ def start_recording():
     else:
         board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
 
+def start_gemini():
+    """Button callback: start/stop recording -> color change -> display test2 -> play recording (blocking) -> return to recording"""
+    global recording_process, img1_data, img2_data, is_recording
+    print(">>> Button pressed!")
+
+    is_recording = not is_recording
+    output_file = 'output.mp3'
+
+    if is_recording:
+        if img2_data:
+            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
+        r = sr.Recognizer()
+        mic = sr.Microphone()
+        with mic as source:
+            print("Speak now to Gemini...")
+            audio = r.listen(source)
+        text = r.recognize_google(audio)
+        response = model.generate_content(text)
+        speech = gTTS(response.text, lang='en')
+        speech.save(output_file)
+        subprocess.Popen(['aplay', '-D', 'plughw:wm8960soundcard', output_file])
+    else:
+        if img1_data:
+            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img1_data)
 
 def on_button_pressed():
     """Button callback: start/stop recording -> color change -> display test2 -> play recording (blocking) -> return to recording"""
