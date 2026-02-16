@@ -278,39 +278,16 @@ playing = False  # Global variable to track if sound is playing
 
 
 def set_wm8960_volume_stable(volume_level: str):
-    """
-    Sets the 'Speaker' volume for the wm8960 sound card using the amixer command.
-
-    Args:
-        volume_level (str): The desired volume value, e.g., '90%' or '121'.
-    """
-
+    """Set wm8960 sound card volume"""
     CARD_NAME = 'wm8960soundcard'
-    CONTROL_NAME = 'Speaker'
     DEVICE_ARG = f'hw:{CARD_NAME}'
-
-    command = [
-        'amixer',
-        '-D', DEVICE_ARG,
-        'sset',
-        CONTROL_NAME,
-        volume_level
-    ]
-
     try:
-        subprocess.run(command, check=True, capture_output=True, text=True)
-
-        print(
-            f"INFO: Successfully set '{CONTROL_NAME}' volume to {volume_level} on card '{CARD_NAME}'.")
-
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to execute amixer.", file=sys.stderr)
-        print(f"Command: {' '.join(command)}", file=sys.stderr)
-        print(f"Return Code: {e.returncode}", file=sys.stderr)
-        print(f"Error Output:\n{e.stderr}", file=sys.stderr)
-    except FileNotFoundError:
-        print("ERROR: 'amixer' command not found. Ensure it is installed and in PATH.", file=sys.stderr)
-
+        subprocess.run(['amixer', '-D', DEVICE_ARG, 'sset', 'Speaker',
+                       volume_level], check=False, capture_output=True)
+        subprocess.run(['amixer', '-D', DEVICE_ARG, 'sset',
+                       'Capture', '100'], check=False, capture_output=True)
+    except Exception as e:
+        print(f"ERROR: Failed to set volume: {e}")
 
 def start_recording():
     """Enter recording stage: display test1.jpg and start arecord"""
