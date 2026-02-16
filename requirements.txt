@@ -4,5 +4,4 @@ gtts
 pyaudio
 Pillow
 cairosvg
-numpy
 spidev
