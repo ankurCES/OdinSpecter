@@ -300,7 +300,7 @@ def start_recording():
 
     # Start recording asynchronously
     command = ['arecord', '-D', 'hw:wm8960soundcard',
-               '-f', 'S24_LE', '-r', '16000', '-c', '2', REC_FILE]
+               '-f', 'S24_LE', '-r', '48000', '-c', '2', REC_FILE]
     recording_process = subprocess.Popen(command)
 
 def load_jpg_as_rgb565(filepath, screen_width, screen_height):
