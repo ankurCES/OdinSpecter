@@ -12,10 +12,6 @@ import threading
 import signal
 import pathlib
 import textwrap
-import google.generativeai as genai
-from IPython.display import display, Markdown
-from gtts import gTTS
-import speech_recognition as sr
 
 try:
     from driver.Whisplay import WhisPlayBoard
@@ -26,8 +22,6 @@ from utils import ColorUtils, ImageUtils, TextUtils
 
 
 GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
-genai.configure(api_key=GOOGLE_GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-pro')
 
 scroll_thread = None
 scroll_stop_event = threading.Event()
