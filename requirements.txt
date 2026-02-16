@@ -1,7 +1,3 @@
-google-generativeai
-ipython
-gtts
-SpeechRecognition
 pyaudio
 Pillow
 cairosvg
