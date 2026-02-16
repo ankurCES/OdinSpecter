@@ -456,6 +456,8 @@ except Exception as e:
 
 try:
     print("Waiting for button press (Press Ctrl+C to exit)...")
+    # 4. After audio finishes, enter recording loop
+    start_recording()
     while True:
         # Check if the sound has finished playing and update the 'playing' flag
         if playing and not pygame.mixer.get_busy():
