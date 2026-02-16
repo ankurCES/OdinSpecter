@@ -413,8 +413,8 @@ args = parser.parse_args()
 custom_font_path = os.getenv("CUSTOM_FONT_PATH", None)
 
 # start render thread
-render_thread = RenderThread(board, custom_font_path or "NotoSansSC-Bold.ttf", fps=30)
-render_thread.start()
+# render_thread = RenderThread(board, custom_font_path or "NotoSansSC-Bold.ttf", fps=30)
+# render_thread.start()
 
 try:
     # 1. Load all image data first
