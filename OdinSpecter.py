@@ -413,12 +413,9 @@ def on_button_pressed_play():
     else:
         print("Image data not loaded yet. This should not happen after initial load.")
 
-def on_button_pressed():
-    """Button callback: play sound -> color change -> display image"""
-    on_button_pressed_record()
 
 # Register button event
-whisplay.on_button_press(on_button_pressed)
+whisplay.on_button_press(on_button_pressed_record)
 
 # --- Argument Parsing ---
 # parser = argparse.ArgumentParser(
@@ -454,9 +451,17 @@ except Exception as e:
     print(f"Failed to load sound from {sound_filepath}: {e}")
     sound = None
 
+test_wav = "data/test.wav"
 try:
     print("Waiting for button press (Press Ctrl+C to exit)...")
     # 4. After audio finishes, enter recording loop
+    set_wm8960_volume_stable("121")
+
+    # 3. Play startup audio at launch (displaying test2.jpg)
+    if os.path.exists(test_wav):
+        print(f">>> Playing startup audio: {test_wav} (displaying test2)")
+        subprocess.run(
+            ['aplay', '-D', 'plughw:wm8960soundcard', test_wav])
     start_recording()
     while True:
         # Check if the sound has finished playing and update the 'playing' flag
@@ -469,5 +474,8 @@ except KeyboardInterrupt:
     print("Exiting program...")
 
 finally:
+    if recording_process:
+        recording_process.terminate()
+    whisplay.cleanup()
     whisplay.cleanup()
     pygame.mixer.quit()  # Quit the mixer
