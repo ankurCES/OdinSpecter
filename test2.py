@@ -52,227 +52,227 @@ REC_FILE = "data/recorded_voice.wav"
 recording_process = None
 is_recording = False
 
-class RenderThread(threading.Thread):
-    def __init__(self, whisplay, font_path, fps=30):
-        super().__init__()
-        self.whisplay = whisplay
-        self.font_path = font_path
-        self.fps = fps
-        self.render_init_screen()
-        # Clear logo after 1 second and start running loop
-        time.sleep(1)
-        self.running = True
-        self.main_text_font = ImageFont.truetype(self.font_path, 20)
-        self.main_text_line_height = self.main_text_font.getmetrics()[0] + self.main_text_font.getmetrics()[1]
-        self.text_cache_image = None
-        self.current_render_text = ""
+# class RenderThread(threading.Thread):
+#     def __init__(self, whisplay, font_path, fps=30):
+#         super().__init__()
+#         self.whisplay = whisplay
+#         self.font_path = font_path
+#         self.fps = fps
+#         self.render_init_screen()
+#         # Clear logo after 1 second and start running loop
+#         time.sleep(1)
+#         self.running = True
+#         self.main_text_font = ImageFont.truetype(self.font_path, 20)
+#         self.main_text_line_height = self.main_text_font.getmetrics()[0] + self.main_text_font.getmetrics()[1]
+#         self.text_cache_image = None
+#         self.current_render_text = ""
 
-    def render_init_screen(self):
-        # Display logo on startup
-        logo_path = os.path.join("img", "logo.png")
-        if os.path.exists(logo_path):
-            logo_image = Image.open(logo_path).convert("RGBA")
-            logo_image = logo_image.resize((board.LCD_WIDTH, board.LCD_HEIGHT), Image.LANCZOS)
-            rgb565_data = ImageUtils.image_to_rgb565(logo_image, board.LCD_WIDTH, board.LCD_HEIGHT)
-            board.set_backlight(100)
-            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, rgb565_data)
+#     def render_init_screen(self):
+#         # Display logo on startup
+#         logo_path = os.path.join("img", "logo.png")
+#         if os.path.exists(logo_path):
+#             logo_image = Image.open(logo_path).convert("RGBA")
+#             logo_image = logo_image.resize((board.LCD_WIDTH, board.LCD_HEIGHT), Image.LANCZOS)
+#             rgb565_data = ImageUtils.image_to_rgb565(logo_image, board.LCD_WIDTH, board.LCD_HEIGHT)
+#             board.set_backlight(100)
+#             board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, rgb565_data)
 
-    def render_frame(self, status, emoji, text, scroll_top, battery_level, battery_color):
-        global current_scroll_speed, current_image_path, current_image, camera_mode
-        if camera_mode:
-            return  # Skip rendering if in camera mode
-        if current_image_path not in [None, ""]:
-            # Try to load image from path
-            if current_image is not None:
-                rgb565_data = ImageUtils.image_to_rgb565(current_image, self.board.LCD_WIDTH, self.board.LCD_HEIGHT)
-                self.board.draw_image(0, 0, self.board.LCD_WIDTH, self.board.LCD_HEIGHT, rgb565_data)
-            elif os.path.exists(current_image_path):
-                try:
-                    image = Image.open(current_image_path).convert("RGBA") # 1024x1024
-                    # crop center and resize to fit screen ratio
-                    img_w, img_h = image.size
-                    screen_ratio = self.board.LCD_WIDTH / self.board.LCD_HEIGHT
-                    img_ratio = img_w / img_h
-                    if img_ratio > screen_ratio:
-                        # crop width
-                        new_w = int(img_h * screen_ratio)
-                        left = (img_w - new_w) // 2
-                        image = image.crop((left, 0, left + new_w, img_h))
-                    else:
-                        # crop height
-                        new_h = int(img_w / screen_ratio)
-                        top = (img_h - new_h) // 2
-                        image = image.crop((0, top, img_w, top + new_h))
-                    image = image.resize((self.board.LCD_WIDTH, self.board.LCD_HEIGHT), Image.LANCZOS)
-                    current_image = image
-                    rgb565_data = ImageUtils.image_to_rgb565(image, self.board.LCD_WIDTH, self.board.LCD_HEIGHT)
-                    self.board.draw_image(0, 0, self.board.LCD_WIDTH, self.board.LCD_HEIGHT, rgb565_data)
-                except Exception as e:
-                    print(f"[Render] Failed to load image {current_image_path}: {e}")
-        else:
-            current_image = None
-            header_height = 88 + 10  # header + margin
-            # create a black background image for header
-            image = Image.new("RGBA", (self.board.LCD_WIDTH, header_height), (0, 0, 0, 255))
-            draw = ImageDraw.Draw(image)
+#     def render_frame(self, status, emoji, text, scroll_top, battery_level, battery_color):
+#         global current_scroll_speed, current_image_path, current_image, camera_mode
+#         if camera_mode:
+#             return  # Skip rendering if in camera mode
+#         if current_image_path not in [None, ""]:
+#             # Try to load image from path
+#             if current_image is not None:
+#                 rgb565_data = ImageUtils.image_to_rgb565(current_image, self.board.LCD_WIDTH, self.board.LCD_HEIGHT)
+#                 self.board.draw_image(0, 0, self.board.LCD_WIDTH, self.board.LCD_HEIGHT, rgb565_data)
+#             elif os.path.exists(current_image_path):
+#                 try:
+#                     image = Image.open(current_image_path).convert("RGBA") # 1024x1024
+#                     # crop center and resize to fit screen ratio
+#                     img_w, img_h = image.size
+#                     screen_ratio = self.board.LCD_WIDTH / self.board.LCD_HEIGHT
+#                     img_ratio = img_w / img_h
+#                     if img_ratio > screen_ratio:
+#                         # crop width
+#                         new_w = int(img_h * screen_ratio)
+#                         left = (img_w - new_w) // 2
+#                         image = image.crop((left, 0, left + new_w, img_h))
+#                     else:
+#                         # crop height
+#                         new_h = int(img_w / screen_ratio)
+#                         top = (img_h - new_h) // 2
+#                         image = image.crop((0, top, img_w, top + new_h))
+#                     image = image.resize((self.board.LCD_WIDTH, self.board.LCD_HEIGHT), Image.LANCZOS)
+#                     current_image = image
+#                     rgb565_data = ImageUtils.image_to_rgb565(image, self.board.LCD_WIDTH, self.board.LCD_HEIGHT)
+#                     self.board.draw_image(0, 0, self.board.LCD_WIDTH, self.board.LCD_HEIGHT, rgb565_data)
+#                 except Exception as e:
+#                     print(f"[Render] Failed to load image {current_image_path}: {e}")
+#         else:
+#             current_image = None
+#             header_height = 88 + 10  # header + margin
+#             # create a black background image for header
+#             image = Image.new("RGBA", (self.board.LCD_WIDTH, header_height), (0, 0, 0, 255))
+#             draw = ImageDraw.Draw(image)
             
-            clock_font_size = 24
-            # clock_font = ImageFont.truetype(self.font_path, clock_font_size)
+#             clock_font_size = 24
+#             # clock_font = ImageFont.truetype(self.font_path, clock_font_size)
 
-            # current_time = time.strftime("%H:%M:%S")
-            # draw.text((self.board.LCD_WIDTH // 2, self.board.LCD_HEIGHT // 2), current_time, font=clock_font, fill=(255, 255, 255, 255))
+#             # current_time = time.strftime("%H:%M:%S")
+#             # draw.text((self.board.LCD_WIDTH // 2, self.board.LCD_HEIGHT // 2), current_time, font=clock_font, fill=(255, 255, 255, 255))
             
-            # render header
-            self.render_header(image, draw, status, emoji, battery_level, battery_color)
-            self.board.draw_image(0, 0, self.board.LCD_WIDTH, header_height, ImageUtils.image_to_rgb565(image, self.board.LCD_WIDTH, header_height))
+#             # render header
+#             self.render_header(image, draw, status, emoji, battery_level, battery_color)
+#             self.board.draw_image(0, 0, self.board.LCD_WIDTH, header_height, ImageUtils.image_to_rgb565(image, self.board.LCD_WIDTH, header_height))
 
-            # render main text area
-            text_area_height = self.board.LCD_HEIGHT - header_height
-            text_bg_image = Image.new("RGBA", (self.board.LCD_WIDTH, text_area_height), (0, 0, 0, 255))
-            text_draw = ImageDraw.Draw(text_bg_image)
-            self.render_main_text(text_bg_image, text_area_height, text_draw, text, current_scroll_speed)
-            self.board.draw_image(0, header_height, self.board.LCD_WIDTH, text_area_height, ImageUtils.image_to_rgb565(text_bg_image, self.board.LCD_WIDTH, text_area_height))
+#             # render main text area
+#             text_area_height = self.board.LCD_HEIGHT - header_height
+#             text_bg_image = Image.new("RGBA", (self.board.LCD_WIDTH, text_area_height), (0, 0, 0, 255))
+#             text_draw = ImageDraw.Draw(text_bg_image)
+#             self.render_main_text(text_bg_image, text_area_height, text_draw, text, current_scroll_speed)
+#             self.board.draw_image(0, header_height, self.board.LCD_WIDTH, text_area_height, ImageUtils.image_to_rgb565(text_bg_image, self.board.LCD_WIDTH, text_area_height))
 
         
 
-    def render_main_text(self, main_text_image, area_height, draw, text, scroll_speed=2):
-        global current_scroll_top
-        """Render main text content, wrap lines according to screen width, only display currently visible part"""
-        if not text:
-            return
-        # Use main text font
-        font = ImageFont.truetype(self.font_path, 20)
-        lines = TextUtils.wrap_text(draw, text, font, self.board.LCD_WIDTH - 20)
+#     def render_main_text(self, main_text_image, area_height, draw, text, scroll_speed=2):
+#         global current_scroll_top
+#         """Render main text content, wrap lines according to screen width, only display currently visible part"""
+#         if not text:
+#             return
+#         # Use main text font
+#         font = ImageFont.truetype(self.font_path, 20)
+#         lines = TextUtils.wrap_text(draw, text, font, self.board.LCD_WIDTH - 20)
 
-        # Line height
-        line_height = self.main_text_line_height
+#         # Line height
+#         line_height = self.main_text_line_height
 
-        # Calculate currently visible lines
-        display_lines = []
-        render_y = 0
-        fin_show_lines = False
-        for i, line in enumerate(lines):
-            if (i + 1) * line_height >= current_scroll_top and i * line_height - current_scroll_top <= area_height:
-                display_lines.append(line)
-                fin_show_lines = True
-            elif fin_show_lines is False:
-                render_y += line_height
+#         # Calculate currently visible lines
+#         display_lines = []
+#         render_y = 0
+#         fin_show_lines = False
+#         for i, line in enumerate(lines):
+#             if (i + 1) * line_height >= current_scroll_top and i * line_height - current_scroll_top <= area_height:
+#                 display_lines.append(line)
+#                 fin_show_lines = True
+#             elif fin_show_lines is False:
+#                 render_y += line_height
         
-        # render_text
-        render_text = ""
-        for line in display_lines:
-            render_text += line
-        if self.current_render_text != render_text:
-            self.current_render_text = render_text
-            show_text_image = Image.new("RGBA", (self.board.LCD_WIDTH, render_y + len(display_lines) * line_height), (0, 0, 0, 255))
-            show_text_draw = ImageDraw.Draw(show_text_image)
-            for line in display_lines:
-                TextUtils.draw_mixed_text(show_text_draw, show_text_image, line, font, (10, render_y))
-                render_y += line_height
-            # Update cache image
-            self.text_cache_image = show_text_image
-        # Draw text_cache_image to main_text_image
-        main_text_image.paste(self.text_cache_image, (0, -current_scroll_top), self.text_cache_image)
+#         # render_text
+#         render_text = ""
+#         for line in display_lines:
+#             render_text += line
+#         if self.current_render_text != render_text:
+#             self.current_render_text = render_text
+#             show_text_image = Image.new("RGBA", (self.board.LCD_WIDTH, render_y + len(display_lines) * line_height), (0, 0, 0, 255))
+#             show_text_draw = ImageDraw.Draw(show_text_image)
+#             for line in display_lines:
+#                 TextUtils.draw_mixed_text(show_text_draw, show_text_image, line, font, (10, render_y))
+#                 render_y += line_height
+#             # Update cache image
+#             self.text_cache_image = show_text_image
+#         # Draw text_cache_image to main_text_image
+#         main_text_image.paste(self.text_cache_image, (0, -current_scroll_top), self.text_cache_image)
 
-        # Update scroll position
-        if scroll_speed > 0 and current_scroll_top < (len(lines) + 1) * line_height - area_height:
-            current_scroll_top += scroll_speed
+#         # Update scroll position
+#         if scroll_speed > 0 and current_scroll_top < (len(lines) + 1) * line_height - area_height:
+#             current_scroll_top += scroll_speed
                 
 
-    def render_header(self, image, draw, status, emoji, battery_level, battery_color):
-        global current_status, current_emoji, current_battery_level, current_battery_color
-        global status_font_size, emoji_font_size, battery_font_size
+#     def render_header(self, image, draw, status, emoji, battery_level, battery_color):
+#         global current_status, current_emoji, current_battery_level, current_battery_color
+#         global status_font_size, emoji_font_size, battery_font_size
         
-        status_font = ImageFont.truetype(self.font_path, status_font_size)
-        emoji_font = ImageFont.truetype(self.font_path, emoji_font_size)
-        battery_font = ImageFont.truetype(self.font_path, battery_font_size)
+#         status_font = ImageFont.truetype(self.font_path, status_font_size)
+#         emoji_font = ImageFont.truetype(self.font_path, emoji_font_size)
+#         battery_font = ImageFont.truetype(self.font_path, battery_font_size)
 
-        image_width = self.board.LCD_WIDTH
+#         image_width = self.board.LCD_WIDTH
 
-        ascent_status, _ = status_font.getmetrics()
-        ascent_emoji, _ = emoji_font.getmetrics()
+#         ascent_status, _ = status_font.getmetrics()
+#         ascent_emoji, _ = emoji_font.getmetrics()
 
-        top_height = status_font_size + emoji_font_size + 20
+#         top_height = status_font_size + emoji_font_size + 20
 
-        # Draw status centered
-        status_bbox = status_font.getbbox(current_status)
-        status_w = status_bbox[2] - status_bbox[0]
-        TextUtils.draw_mixed_text(draw, image, current_status, status_font, (board.CornerHeight, 0))
+#         # Draw status centered
+#         status_bbox = status_font.getbbox(current_status)
+#         status_w = status_bbox[2] - status_bbox[0]
+#         TextUtils.draw_mixed_text(draw, image, current_status, status_font, (board.CornerHeight, 0))
 
-        # Draw emoji centered
-        emoji_bbox = emoji_font.getbbox(current_emoji)
-        emoji_w = emoji_bbox[2] - emoji_bbox[0]
-        TextUtils.draw_mixed_text(draw, image, current_emoji, emoji_font, ((image_width - emoji_w) // 2, status_font_size + 8))
+#         # Draw emoji centered
+#         emoji_bbox = emoji_font.getbbox(current_emoji)
+#         emoji_w = emoji_bbox[2] - emoji_bbox[0]
+#         TextUtils.draw_mixed_text(draw, image, current_emoji, emoji_font, ((image_width - emoji_w) // 2, status_font_size + 8))
         
-        # Draw battery icon
-        if battery_level is not None:
-            self.render_battery(draw, battery_font, battery_level, battery_color, image_width, status_font_size)
+#         # Draw battery icon
+#         if battery_level is not None:
+#             self.render_battery(draw, battery_font, battery_level, battery_color, image_width, status_font_size)
         
-        return top_height
+#         return top_height
 
-    def render_battery(self, draw, battery_font, battery_level, battery_color, image_width, status_font_size):
-         # Battery icon parameters (smaller)
-        battery_width = 26
-        battery_height = 15
-        battery_margin_right = 20
-        battery_x = image_width - battery_width - battery_margin_right
-        battery_y = (status_font_size) // 2
-        corner_radius = 3
-        fill_color = "black"
-        if battery_color is not None:
-            fill_color = battery_color # Light green
-        # Outline with rounded corners
-        outline_color = "white"
-        line_width = 2
+#     def render_battery(self, draw, battery_font, battery_level, battery_color, image_width, status_font_size):
+#          # Battery icon parameters (smaller)
+#         battery_width = 26
+#         battery_height = 15
+#         battery_margin_right = 20
+#         battery_x = image_width - battery_width - battery_margin_right
+#         battery_y = (status_font_size) // 2
+#         corner_radius = 3
+#         fill_color = "black"
+#         if battery_color is not None:
+#             fill_color = battery_color # Light green
+#         # Outline with rounded corners
+#         outline_color = "white"
+#         line_width = 2
 
-        # Draw rounded corners
-        draw.arc((battery_x, battery_y, battery_x + 2 * corner_radius, battery_y + 2 * corner_radius), 180, 270, fill=outline_color, width=line_width)  # Top-left
-        draw.arc((battery_x + battery_width - 2 * corner_radius, battery_y, battery_x + battery_width, battery_y + 2 * corner_radius), 270, 0, fill=outline_color, width=line_width)  # Top-right
-        draw.arc((battery_x, battery_y + battery_height - 2 * corner_radius, battery_x + 2 * corner_radius, battery_y + battery_height), 90, 180, fill=outline_color, width=line_width)  # Bottom-left
-        draw.arc((battery_x + battery_width - 2 * corner_radius, battery_y + battery_height - 2 * corner_radius, battery_x + battery_width, battery_y + battery_height), 0, 90, fill=outline_color, width=line_width)  # Bottom-right
+#         # Draw rounded corners
+#         draw.arc((battery_x, battery_y, battery_x + 2 * corner_radius, battery_y + 2 * corner_radius), 180, 270, fill=outline_color, width=line_width)  # Top-left
+#         draw.arc((battery_x + battery_width - 2 * corner_radius, battery_y, battery_x + battery_width, battery_y + 2 * corner_radius), 270, 0, fill=outline_color, width=line_width)  # Top-right
+#         draw.arc((battery_x, battery_y + battery_height - 2 * corner_radius, battery_x + 2 * corner_radius, battery_y + battery_height), 90, 180, fill=outline_color, width=line_width)  # Bottom-left
+#         draw.arc((battery_x + battery_width - 2 * corner_radius, battery_y + battery_height - 2 * corner_radius, battery_x + battery_width, battery_y + battery_height), 0, 90, fill=outline_color, width=line_width)  # Bottom-right
 
-        # Draw top and bottom lines
-        draw.line([(battery_x + corner_radius, battery_y), (battery_x + battery_width - corner_radius, battery_y)], fill=outline_color, width=line_width)  # Top
-        draw.line([(battery_x + corner_radius, battery_y + battery_height), (battery_x + battery_width - corner_radius, battery_y + battery_height)], fill=outline_color, width=line_width)  # Bottom
+#         # Draw top and bottom lines
+#         draw.line([(battery_x + corner_radius, battery_y), (battery_x + battery_width - corner_radius, battery_y)], fill=outline_color, width=line_width)  # Top
+#         draw.line([(battery_x + corner_radius, battery_y + battery_height), (battery_x + battery_width - corner_radius, battery_y + battery_height)], fill=outline_color, width=line_width)  # Bottom
 
-        # Draw left and right lines
-        draw.line([(battery_x, battery_y + corner_radius), (battery_x, battery_y + battery_height - corner_radius)], fill=outline_color, width=line_width)  # Left
-        draw.line([(battery_x + battery_width, battery_y + corner_radius), (battery_x + battery_width, battery_y + battery_height - corner_radius)], fill=outline_color, width=line_width)  # Right
+#         # Draw left and right lines
+#         draw.line([(battery_x, battery_y + corner_radius), (battery_x, battery_y + battery_height - corner_radius)], fill=outline_color, width=line_width)  # Left
+#         draw.line([(battery_x + battery_width, battery_y + corner_radius), (battery_x + battery_width, battery_y + battery_height - corner_radius)], fill=outline_color, width=line_width)  # Right
 
-        if fill_color !=(0,0,0):
-            draw.rectangle([battery_x + line_width // 2, battery_y + line_width // 2, battery_x + battery_width - line_width // 2, battery_y + battery_height - line_width // 2], fill=fill_color)
+#         if fill_color !=(0,0,0):
+#             draw.rectangle([battery_x + line_width // 2, battery_y + line_width // 2, battery_x + battery_width - line_width // 2, battery_y + battery_height - line_width // 2], fill=fill_color)
 
-        # Battery head
-        head_width = 2
-        head_height = 5
-        head_x = battery_x + battery_width
-        head_y = battery_y + (battery_height - head_height) // 2
-        draw.rectangle([head_x, head_y, head_x + head_width, head_y + head_height], fill="white")
+#         # Battery head
+#         head_width = 2
+#         head_height = 5
+#         head_x = battery_x + battery_width
+#         head_y = battery_y + (battery_height - head_height) // 2
+#         draw.rectangle([head_x, head_y, head_x + head_width, head_y + head_height], fill="white")
 
-        # Battery level text (just number)
-        battery_text = str(battery_level)
-        text_bbox = battery_font.getbbox(battery_text)
-        text_h = text_bbox[3] - text_bbox[1]
-        text_y = battery_y + (battery_height - (battery_font.getmetrics()[0] + battery_font.getmetrics()[1])) // 2
-        text_w = text_bbox[2] - text_bbox[0]
-        text_x = battery_x + (battery_width - text_w) // 2
+#         # Battery level text (just number)
+#         battery_text = str(battery_level)
+#         text_bbox = battery_font.getbbox(battery_text)
+#         text_h = text_bbox[3] - text_bbox[1]
+#         text_y = battery_y + (battery_height - (battery_font.getmetrics()[0] + battery_font.getmetrics()[1])) // 2
+#         text_w = text_bbox[2] - text_bbox[0]
+#         text_x = battery_x + (battery_width - text_w) // 2
         
-        luminance = ColorUtils.calculate_luminance(fill_color)
-        brightness_threshold = 128 # You can adjust this threshold as needed
-        if luminance > brightness_threshold:
-            text_fill_color = "black"
-        else:
-            text_fill_color = "white"
-        draw.text((text_x, text_y), battery_text, font=battery_font, fill=text_fill_color)
+#         luminance = ColorUtils.calculate_luminance(fill_color)
+#         brightness_threshold = 128 # You can adjust this threshold as needed
+#         if luminance > brightness_threshold:
+#             text_fill_color = "black"
+#         else:
+#             text_fill_color = "white"
+#         draw.text((text_x, text_y), battery_text, font=battery_font, fill=text_fill_color)
 
-    def run(self):
-        frame_interval = 1 / self.fps
-        while self.running:
-            self.render_frame(current_status, current_emoji, current_text, current_scroll_top, current_battery_level, current_battery_color)
-            time.sleep(frame_interval)
+#     def run(self):
+#         frame_interval = 1 / self.fps
+#         while self.running:
+#             self.render_frame(current_status, current_emoji, current_text, current_scroll_top, current_battery_level, current_battery_color)
+#             time.sleep(frame_interval)
             
-    def stop(self):
-        self.running = False
+#     def stop(self):
+#         self.running = False
 
 def update_display_data(status=None, emoji=None, text=None, 
                   scroll_speed=None, battery_level=None, battery_color=None, image_path=None):
@@ -387,17 +387,17 @@ def on_button_pressed():
         # 4. Automatically return to recording stage
         start_recording()
 
-def update():
-    content = "Listening"
-    status = None
-    emoji = None
-    text = "Hello There!"
-    scroll_speed = content.get("scroll_speed", 2)
-    battery_level = 100
-    update_display_data(status=status, emoji=emoji,
-                                     text=text, scroll_speed=scroll_speed,
-                                     battery_level=battery_level, battery_color=None,
-                                     image_path='data/OdinSpecter_2.png')
+# def update():
+#     content = "Listening"
+#     status = None
+#     emoji = None
+#     text = "Hello There!"
+#     scroll_speed = content.get("scroll_speed", 2)
+#     battery_level = 100
+#     update_display_data(status=status, emoji=emoji,
+#                                      text=text, scroll_speed=scroll_speed,
+#                                      battery_level=battery_level, battery_color=None,
+#                                      image_path='data/OdinSpecter_2.png')
 
 # Register callback
 board.on_button_press(on_button_pressed)
@@ -438,7 +438,7 @@ try:
 
     # 4. After audio finishes, enter recording loop
     # start_recording()
-    update()
+    # update()
 
     while True:
         sleep(0.1)
