@@ -319,7 +319,7 @@ def start_recording():
     print(">>> Press the button to stop recording and playback...")
 
     if img1_data:
-        board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img1_data)
+        whisplay.draw_image(0, 0, whisplay.LCD_WIDTH, whisplay.LCD_HEIGHT, img1_data)
 
     # Start recording asynchronously
     command = ['arecord', '-D', 'hw:wm8960soundcard',
@@ -377,14 +377,14 @@ def on_button_pressed_record():
     color_sequence = [(255, 0, 0, 0xF800),
                       (0, 255, 0, 0x07E0), (0, 0, 255, 0x001F)]
     for r, g, b, hex_code in color_sequence:
-        board.fill_screen(hex_code)
-        board.set_rgb(r, g, b)
+        whisplay.fill_screen(hex_code)
+        whisplay.set_rgb(r, g, b)
         sleep(0.4)
-    board.set_rgb(0, 0, 0)
+    whisplay.set_rgb(0, 0, 0)
 
     # 3. Playback feedback: display test2.jpg and play recorded audio
     if img2_data:
-        board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
+        whisplay.draw_image(0, 0, whisplay.LCD_WIDTH, whisplay.LCD_HEIGHT, img2_data)
 
     print(">>> Playing back recording (displaying test2)...")
     subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
