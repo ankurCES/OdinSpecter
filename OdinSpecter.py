@@ -38,8 +38,8 @@ camera_capture_image_path = ""
 camera_thread = None
 clients = {}
 # Global variables
-img1_data = None  # Recording stage (test1.jpg)
-img2_data = None  # Playback stage (test2.jpg)
+img1_data = 'data/OdinSpecter_4.png'  # Recording stage (test1.jpg)
+img2_data = 'data/OdinSpecter_2.png'  # Playback stage (test2.jpg)
 REC_FILE = "data/recorded_voice.wav"
 recording_process = None
 
