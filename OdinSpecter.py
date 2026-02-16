@@ -37,6 +37,11 @@ camera_mode_button_release_time = 0
 camera_capture_image_path = ""
 camera_thread = None
 clients = {}
+# Global variables
+img1_data = None  # Recording stage (test1.jpg)
+img2_data = None  # Playback stage (test2.jpg)
+REC_FILE = "data/recorded_voice.wav"
+recording_process = None
 
 class RenderThread(threading.Thread):
     def __init__(self, whisplay, font_path, fps=30):
@@ -307,6 +312,20 @@ def set_wm8960_volume_stable(volume_level: str):
         print("ERROR: 'amixer' command not found. Ensure it is installed and in PATH.", file=sys.stderr)
 
 
+def start_recording():
+    """Enter recording stage: display test1.jpg and start arecord"""
+    global recording_process, img1_data
+    print(">>> Status: Entering recording stage (displaying test1)...")
+    print(">>> Press the button to stop recording and playback...")
+
+    if img1_data:
+        board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img1_data)
+
+    # Start recording asynchronously
+    command = ['arecord', '-D', 'hw:wm8960soundcard',
+               '-f', 'S16_LE', '-r', '16000', '-c', '2', REC_FILE]
+    recording_process = subprocess.Popen(command)
+
 def load_jpg_as_rgb565(filepath, screen_width, screen_height):
     img = Image.open(filepath).convert('RGB')
     original_width, original_height = img.size
@@ -344,10 +363,38 @@ def load_jpg_as_rgb565(filepath, screen_width, screen_height):
 
     return pixel_data
 
+def on_button_pressed_record():
+    """Button callback: stop recording -> color change -> display test2 -> play recording (blocking) -> return to recording"""
+    global recording_process, img1_data, img2_data
+    print(">>> Button pressed!")
+
+    # 1. Stop recording
+    if recording_process and recording_process.poll() is None:
+        recording_process.terminate()
+        recording_process.wait()
+
+    # 2. Visual feedback: LED color sequence
+    color_sequence = [(255, 0, 0, 0xF800),
+                      (0, 255, 0, 0x07E0), (0, 0, 255, 0x001F)]
+    for r, g, b, hex_code in color_sequence:
+        board.fill_screen(hex_code)
+        board.set_rgb(r, g, b)
+        sleep(0.4)
+    board.set_rgb(0, 0, 0)
+
+    # 3. Playback feedback: display test2.jpg and play recorded audio
+    if img2_data:
+        board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
+
+    print(">>> Playing back recording (displaying test2)...")
+    subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
+
+    # 4. Automatically return to recording stage
+    start_recording()
+
 # Button callback function
 
-
-def on_button_pressed():
+def on_button_pressed_play():
     print("Button pressed!")
 
     global sound, playing  # Use the global sound and playing variables
@@ -389,6 +436,9 @@ def on_button_pressed():
     else:
         print("Image data not loaded yet. This should not happen after initial load.")
 
+def on_button_pressed():
+    """Button callback: play sound -> color change -> display image"""
+    on_button_pressed_record()
 
 # Register button event
 whisplay.on_button_press(on_button_pressed)
