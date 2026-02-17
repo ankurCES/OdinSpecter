@@ -70,5 +70,29 @@ def upload_and_generate():
     try:
         text_output = result['candidates'][0]['content']['parts'][0]['text']
         print("\nGemini Response:\n", text_output)
+        get_response(text_output)
     except (KeyError, IndexError):
         print("Error in response:", json.dumps(result, indent=2))
+
+def get_response(text):
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent"
+
+    payload = json.dumps({
+    "contents": [
+        {
+        "parts": [
+            {
+            "text": "Extract the question from this text ignoring all other unnecessary audio description. Answer only to the intended part. The unfiltered text is: {}".format(text)
+            }
+        ]
+        }
+    ]
+    })
+    headers = {
+    'x-goog-api-key': API_KEY,
+    'Content-Type': 'application/json'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
