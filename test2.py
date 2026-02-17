@@ -74,6 +74,7 @@ img1_data = None  # Recording stage (test1.jpg)
 img2_data = None  # Playback stage (test2.jpg)
 REC_FILE = "data/recorded_voice.wav"
 recording_process = None
+to_record = True
 
 GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
 
@@ -209,32 +210,34 @@ def start_recording():
 
 def on_button_pressed():
     """Button callback: stop recording -> color change -> display test2 -> play recording (blocking) -> return to recording"""
-    global recording_process, img1_data, img2_data
+    global recording_process, img1_data, img2_data, to_record
     print(">>> Button pressed!")
 
-    # 1. Stop recording
-    if recording_process and recording_process.poll() is None:
-        recording_process.terminate()
-        recording_process.wait()
+    if to_record:
+        start_recording()
+    
+    if not to_record:
+        # 1. Stop recording
+        if recording_process and recording_process.poll() is None:
+            recording_process.terminate()
+            recording_process.wait()
 
-    # 2. Visual feedback: LED color sequence
-    color_sequence = [(255, 0, 0, 0xF800),
-                      (0, 255, 0, 0x07E0), (0, 0, 255, 0x001F)]
-    for r, g, b, hex_code in color_sequence:
-        board.fill_screen(hex_code)
-        board.set_rgb(r, g, b)
-        sleep(0.4)
-    board.set_rgb(0, 0, 0)
+        # 2. Visual feedback: LED color sequence
+        color_sequence = [(255, 0, 0, 0xF800),
+                        (0, 255, 0, 0x07E0), (0, 0, 255, 0x001F)]
+        for r, g, b, hex_code in color_sequence:
+            board.fill_screen(hex_code)
+            board.set_rgb(r, g, b)
+            sleep(0.4)
+        board.set_rgb(0, 0, 0)
 
-    # 3. Playback feedback: display test2.jpg and play recorded audio
-    if img2_data:
-        board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
+        # 3. Playback feedback: display test2.jpg and play recorded audio
+        if img2_data:
+            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
 
-    print(">>> Playing back recording (displaying test2)...")
-    subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
-
-    # 4. Automatically return to recording stage
-    start_recording()
+        print(">>> Playing back recording (displaying test2)...")
+        subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
+    to_record = not to_record
 
 
 # Register callback
@@ -268,7 +271,9 @@ try:
             ['aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
-    start_recording()
+    # start_recording()
+    # Start Recording Flag on next button press
+    to_record = True
 
     while True:
         sleep(0.1)
