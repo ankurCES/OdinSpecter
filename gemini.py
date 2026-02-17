@@ -58,7 +58,7 @@ def upload_and_generate():
     payload = {
         "contents": [{
             "parts": [
-                {"text": "Describe this audio clip"},
+                {"text": "Transcribe this audio clip"},
                 {"file_data": {"mime_type": mime_type, "file_uri": file_uri}}
             ]
         }]
@@ -83,7 +83,7 @@ def get_response(text):
         {
         "parts": [
             {
-            "text": "Extract the question from this text ignoring all other unnecessary audio description. Answer only to the intended part. The unfiltered text is: {}".format(text)
+            "text": "{}".format(text)
             }
         ]
         }
