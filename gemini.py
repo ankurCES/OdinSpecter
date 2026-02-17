@@ -57,7 +57,6 @@ def upload_and_generate():
     payload = {
         "contents": [{
             "parts": [
-                {"text": "Respond to the question"},
                 {"file_data": {"mime_type": mime_type, "file_uri": file_uri}}
             ]
         }]
@@ -70,7 +69,7 @@ def upload_and_generate():
     try:
         text_output = result['candidates'][0]['content']['parts'][0]['text']
         print("\nGemini Response:\n", text_output)
-        get_response(text_output)
+        # get_response(text_output)
     except (KeyError, IndexError):
         print("Error in response:", json.dumps(result, indent=2))
 
