@@ -368,41 +368,41 @@ try:
     for stat_key in STATUS_MODES:
         STATUS_ASSETS[stat_key] = load_jpg_as_rgb565('{}{}.png'.format(BASE_IMG, STATUS_MODES[stat_key]), board.LCD_WIDTH, board.LCD_HEIGHT)
     
-    bootanimation_load = []
-    boot_count = 0
-    while boot_count < 37:
-        boot_count =  boot_count+1
-        number = "0{}".format(boot_count) if boot_count >= 10 else "00{}".format(boot_count)
+    # bootanimation_load = []
+    # boot_count = 0
+    # while boot_count < 37:
+    #     boot_count =  boot_count+1
+    #     number = "0{}".format(boot_count) if boot_count >= 10 else "00{}".format(boot_count)
         
-        bootanimation_load.append(load_jpg_as_rgb565('data/animation/ezgif-frame-{}.jpg'.format(number), board.LCD_WIDTH, board.LCD_HEIGHT))
+    #     bootanimation_load.append(load_jpg_as_rgb565('data/animation/ezgif-frame-{}.jpg'.format(number), board.LCD_WIDTH, board.LCD_HEIGHT))
 
     # 2. Set volume
     set_wm8960_volume_stable("121")
 
-    # 3.1 Play Bootanimation
-    if not shutil.which("ffmpeg"):
-        print("Error: ffmpeg not found in PATH.")
-        sys.exit(1)
+    # # 3.1 Play Bootanimation
+    # if not shutil.which("ffmpeg"):
+    #     print("Error: ffmpeg not found in PATH.")
+    #     sys.exit(1)
 
-    if MODE == 'VIDEO' and os.path.exists(VIDEO_FILE):
-        try:
-            play_video(VIDEO_FILE)
-        except Exception as e:
-            print(f"Error: failed to play '{VIDEO_FILE}': {e}")
-            pass
-    else:
-        print(f"Error: {VIDEO_FILE} not found.")
+    # if MODE == 'VIDEO' and os.path.exists(VIDEO_FILE):
+    #     try:
+    #         play_video(VIDEO_FILE)
+    #     except Exception as e:
+    #         print(f"Error: failed to play '{VIDEO_FILE}': {e}")
+    #         pass
+    # else:
+    #     print(f"Error: {VIDEO_FILE} not found.")
 
-    # 3.2 Play startup audio at launch (displaying test2.jpg)
+    # # 3.2 Play startup audio at launch (displaying test2.jpg)
     if MODE == 'AUDIO':
         if os.path.exists(BOOTANIMATION):
             # if img2_data:
             #     board.draw_image(0, 0, board.LCD_WIDTH,
             #                     board.LCD_HEIGHT, img2_data)
-            for boot_frame in bootanimation_load:
-                board.draw_image(0, 0, board.LCD_WIDTH,
-                                board.LCD_HEIGHT, boot_frame)
-                sleep(0.2)
+            # for boot_frame in bootanimation_load:
+            #     board.draw_image(0, 0, board.LCD_WIDTH,
+            #                     board.LCD_HEIGHT, boot_frame)
+            #     sleep(0.2)
             print(f">>> Playing startup audio: {BOOTANIMATION} (displaying test2)")
             subprocess.run(
                 ['aplay', '-D', 'plughw:wm8960soundcard', BOOTANIMATION])
