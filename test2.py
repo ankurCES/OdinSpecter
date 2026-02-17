@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import sys
 import os
 import argparse
-import pygame  # Import pygame
+# import pygame  # Import pygame
 import subprocess
 import time
 import socket
