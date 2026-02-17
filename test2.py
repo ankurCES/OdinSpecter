@@ -81,12 +81,12 @@ BOOTANIMATION = 'data/BooTAnimation_2.wav'
 BASE_IMG = 'data/OdinSpecter_'
 
 STATUS_MODES = {
-    'wf_scn': 'WIFI_SCAN',
-    'wf_evil': 'EVIL_TWIN',
+    # 'wf_scn': 'WIFI_SCAN',
+    # 'wf_evil': 'EVIL_TWIN',
     'connected': 'CONNECTED',
-    'ble_scan': "BLE_SCAN",
-    'ble_atk': "BLE_ATTACK",
-    'ducky': 'RUBBER_DUCKY'
+    # 'ble_scan': "BLE_SCAN",
+    # 'ble_atk': "BLE_ATTACK",
+    # 'ducky': 'RUBBER_DUCKY'
 }
 
 STATUS_ASSETS = {}
