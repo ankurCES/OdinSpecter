@@ -239,7 +239,13 @@ def on_button_pressed():
         print(">>> Playing back recording (displaying test2)...")
         subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
         print(">>>>>>>>>>>>>>>>>>GEMINI>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        upload_and_generate()
+        try:
+            upload_and_generate()
+            print(">>> Playing Gemini Response")
+            subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', "data/answer.wav"])
+        except Exception as e:
+            print("Something went wrong....")
+            pass
     to_record = not to_record
 
 

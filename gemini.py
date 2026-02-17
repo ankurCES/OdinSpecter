@@ -2,7 +2,8 @@ import os
 import json
 import requests
 import mimetypes
-import json
+import base64
+import subprocess
 
 with open('config.json', 'r') as file:
     data = json.load(file)
@@ -94,5 +95,70 @@ def get_response(text):
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
+    result = response.json()
+    answer = result['candidates'][0]['content']['parts'][0]['text']
+    print(answer)
+    generate_gemini_speech(answer)
 
-    print(response.text)
+def generate_gemini_speech(text, output_filename="data/answer.wav", voice="Leda"):
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key={API_KEY}"
+    
+    # 1. Prepare the Request Payload
+    payload = {
+        "contents": [{
+            "parts": [{
+                "text": text
+            }]
+        }],
+        "generationConfig": {
+            "responseModalities": ["AUDIO"],
+            "speechConfig": {
+                "voiceConfig": {
+                    "prebuiltVoiceConfig": {
+                        "voiceName": voice
+                    }
+                }
+            }
+        }
+    }
+
+    headers = {"Content-Type": "application/json"}
+
+    # 2. Call the API
+    print(f"Requesting speech for: '{text}'...")
+    response = requests.post(url, headers=headers, json=payload)
+    
+    if response.status_code != 200:
+        print(f"Error: {response.status_code}")
+        print(response.text)
+        return
+
+    # 3. Extract Base64 and Decode to PCM
+    response_data = response.json()
+    try:
+        audio_base64 = response_data['candidates'][0]['content']['parts'][0]['inlineData']['data']
+        pcm_data = base64.b64decode(audio_base64)
+        
+        # Save temporary PCM file
+        temp_pcm = "temp_output.pcm"
+        with open(temp_pcm, "wb") as f:
+            f.write(pcm_data)
+            
+        # 4. Convert PCM to WAV using FFmpeg via subprocess
+        # This mimics your: ffmpeg -f s16le -ar 24000 -ac 1 -i out.pcm out.wav
+        print("Converting PCM to WAV...")
+        subprocess.run([
+            'ffmpeg', '-y', 
+            '-f', 's16le', 
+            '-ar', '24000', 
+            '-ac', '1', 
+            '-i', temp_pcm, 
+            output_filename
+        ], check=True, capture_output=True)
+        
+        os.remove(temp_pcm)
+        print(f"Success! Saved to {output_filename}")
+
+    except (KeyError, IndexError) as e:
+        print(f"Failed to parse response: {e}")
+        print(json.dumps(response_data, indent=2))
