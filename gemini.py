@@ -57,7 +57,7 @@ def upload_and_generate():
     payload = {
         "contents": [{
             "parts": [
-                {"text": "Describe this audio clip"},
+                {"text": "Respond to the question"},
                 {"file_data": {"mime_type": mime_type, "file_uri": file_uri}}
             ]
         }]
