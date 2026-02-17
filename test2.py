@@ -87,6 +87,7 @@ STATUS_MODES = {
     # 'ble_scan': "BLE_SCAN",
     # 'ble_atk': "BLE_ATTACK",
     # 'ducky': 'RUBBER_DUCKY'
+    'loading': 'LOADING'
 }
 
 STATUS_ASSETS = {}
@@ -396,9 +397,9 @@ try:
     # # 3.2 Play startup audio at launch (displaying test2.jpg)
     if MODE == 'AUDIO':
         if os.path.exists(BOOTANIMATION):
-            # if img2_data:
-            #     board.draw_image(0, 0, board.LCD_WIDTH,
-            #                     board.LCD_HEIGHT, img2_data)
+            if img2_data:
+                board.draw_image(0, 0, board.LCD_WIDTH,
+                                board.LCD_HEIGHT, STATUS_ASSETS['loading'])
             # for boot_frame in bootanimation_load:
             #     board.draw_image(0, 0, board.LCD_WIDTH,
             #                     board.LCD_HEIGHT, boot_frame)
