@@ -133,7 +133,7 @@ def start_recording():
         # Start recording asynchronously
         command = ['arecord', '-D', 'hw:wm8960soundcard',
                 '-f', 'S16_LE', '-r', '16000', '-c', '2', REC_FILE]
-        recording_process = subprocess.Popen(command)
+        recording_process = subprocess.Popen(command, shell=False, preexec_fn=os.setsid)
     else:
         board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
 
