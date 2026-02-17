@@ -136,30 +136,6 @@ def start_recording():
     else:
         board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
 
-def start_gemini():
-    """Button callback: start/stop recording -> color change -> display test2 -> play recording (blocking) -> return to recording"""
-    global recording_process, img1_data, img2_data, is_recording
-    print(">>> Button pressed!")
-
-    is_recording = not is_recording
-    output_file = 'output.mp3'
-
-    if is_recording:
-        if img2_data:
-            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
-        r = sr.Recognizer()
-        mic = sr.Microphone()
-        with mic as source:
-            print("Speak now to Gemini...")
-            audio = r.listen(source)
-        text = r.recognize_google(audio)
-        response = model.generate_content(text)
-        speech = gTTS(response.text, lang='en')
-        speech.save(output_file)
-        subprocess.Popen(['aplay', '-D', 'plughw:wm8960soundcard', output_file])
-    else:
-        if img1_data:
-            board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img1_data)
 
 def on_button_pressed():
     """Button callback: start/stop recording -> color change -> display test2 -> play recording (blocking) -> return to recording"""
