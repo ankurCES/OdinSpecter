@@ -76,8 +76,8 @@ img2_data = None  # Playback stage (test2.jpg)
 REC_FILE = "data/recorded_voice.wav"
 recording_process = None
 to_record = True
-MODE = "VIDEO"
-
+MODE = "AUDIO"
+BOOTANIMATION = 'data/BooTAnimation_2.wav'
 BASE_IMG = 'data/OdinSpecter_'
 
 STATUS_MODES = {
@@ -367,6 +367,12 @@ try:
     # load status assets
     for stat_key in STATUS_MODES:
         STATUS_ASSETS[stat_key] = load_jpg_as_rgb565('{}{}.png'.format(BASE_IMG, STATUS_MODES[stat_key]), board.LCD_WIDTH, board.LCD_HEIGHT)
+    
+    bootanimation_load = []
+    boot_count = 0
+    while boot_count < 37:
+        number = "0{}".format(boot_count) if boot_count >= 10 else "0{}".format(boot_count)
+        bootanimation_load.append(load_jpg_as_rgb565('ezgif-frame-{}.png'.format(number), board.LCD_WIDTH, board.LCD_HEIGHT))
 
     # 2. Set volume
     set_wm8960_volume_stable("121")
@@ -387,13 +393,17 @@ try:
 
     # 3.2 Play startup audio at launch (displaying test2.jpg)
     if MODE == 'AUDIO':
-        if os.path.exists(args.test_wav):
-            if img2_data:
+        if os.path.exists(BOOTANIMATION):
+            # if img2_data:
+            #     board.draw_image(0, 0, board.LCD_WIDTH,
+            #                     board.LCD_HEIGHT, img2_data)
+            for boot_frame in bootanimation_load:
                 board.draw_image(0, 0, board.LCD_WIDTH,
-                                board.LCD_HEIGHT, img2_data)
-            print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
+                                board.LCD_HEIGHT, boot_frame)
+                sleep(0.2)
+            print(f">>> Playing startup audio: {BOOTANIMATION} (displaying test2)")
             subprocess.run(
-                ['aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
+                ['aplay', '-D', 'plughw:wm8960soundcard', BOOTANIMATION])
 
     # 4. After audio finishes, enter recording loop
     # start_recording()
