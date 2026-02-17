@@ -12,12 +12,7 @@ import threading
 import signal
 import pathlib
 import textwrap
-
-try:
-    from driver.Whisplay import WhisPlayBoard
-except ImportError:
-    print("Error: WhisPlay driver not found.")
-    sys.exit(1)
+from driver.Whisplay import WhisPlayBoard
 from utils import ColorUtils, ImageUtils, TextUtils
 
 
