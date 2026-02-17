@@ -373,7 +373,8 @@ try:
     while boot_count < 37:
         boot_count =  boot_count+1
         number = "0{}".format(boot_count) if boot_count >= 10 else "0{}".format(boot_count)
-        bootanimation_load.append(load_jpg_as_rgb565('ezgif-frame-{}.png'.format(number), board.LCD_WIDTH, board.LCD_HEIGHT))
+        
+        bootanimation_load.append(load_jpg_as_rgb565('data/animation/ezgif-frame-{}.jpg'.format(number), board.LCD_WIDTH, board.LCD_HEIGHT))
 
     # 2. Set volume
     set_wm8960_volume_stable("121")
