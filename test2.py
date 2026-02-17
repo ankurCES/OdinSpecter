@@ -53,8 +53,8 @@
 # recording_process = None
 # is_recording = False
 
-
-
+import gc
+import shutil
 from time import sleep
 from PIL import Image
 import sys
@@ -80,6 +80,88 @@ to_record = True
 GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
 
 print("Gemini API : ".format(GOOGLE_GEMINI_API_KEY))
+
+def get_ffmpeg_cmd(video_path, width, height):
+    model = "generic"
+    try:
+        with open('/proc/device-tree/model', 'r') as f:
+            model = f.read().lower()
+    except:
+        pass
+
+    input_args = []
+    vf_params = f'scale={width}:{height}:flags=neighbor'
+
+    if 'zero 2' in model or 'raspberry pi 3' in model:
+        print(f"Device: {model.strip()} | Mode: Multi-thread")
+        input_args = ['-threads', '4']
+    elif 'zero' in model:
+        print("Device: Pi Zero/W | Mode: HW Accel")
+        input_args = ['-vcodec', 'h264_v4l2m2m']
+    elif 'raspberry pi 4' in model or 'raspberry pi 5' in model:
+        print(f"Device: {model.strip()} | Mode: High-perf")
+        input_args = ['-threads', '4']
+        vf_params = f'scale={width}:{height}:flags=bicubic'
+
+    return ['ffmpeg'] + input_args + [
+        '-i', video_path,
+        '-vf', vf_params,
+        '-vcodec', 'rawvideo',
+        '-pix_fmt', 'rgb565be',
+        '-f', 'image2pipe',
+        '-loglevel', 'quiet',
+        '-'
+    ]
+
+def play_video(video_path):
+    board = WhisPlayBoard()
+    board.set_backlight(100)
+
+    width, height = board.LCD_WIDTH, board.LCD_HEIGHT
+    frame_size = width * height * 2
+    buffer = bytearray(frame_size)
+
+    def start_process():
+        cmd = get_ffmpeg_cmd(video_path, width, height)
+        return subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=frame_size)
+
+    process = start_process()
+
+    gc.collect()
+    gc.disable()
+
+    print(f"Playing (loop): {video_path}. Press Ctrl+C to exit.")
+    try:
+        while True:
+            read = process.stdout.readinto(buffer)
+            if read != frame_size:
+                # reached EOF or error -> restart the ffmpeg process to loop
+                try:
+                    process.kill()
+                except Exception:
+                    pass
+                try:
+                    process.wait(timeout=1)
+                except Exception:
+                    pass
+                # restart
+                process = start_process()
+                continue
+            board.draw_image(0, 0, width, height, buffer)
+    except KeyboardInterrupt:
+        print("\nStopped.")
+    finally:
+        try:
+            process.kill()
+        except Exception:
+            pass
+        try:
+            process.wait(timeout=1)
+        except Exception:
+            pass
+        gc.enable()
+        board.cleanup()
+        print("Exit.")
 
 def update_display_data(status=None, emoji=None, text=None, 
                   scroll_speed=None, battery_level=None, battery_color=None, image_path=None):
@@ -256,8 +338,25 @@ board.on_button_press(on_button_pressed)
 parser = argparse.ArgumentParser()
 parser.add_argument("--img1", default="data/OdinSpecter_4.png", help="Image for recording stage")
 parser.add_argument("--img2", default="data/OdinSpecter_2.png", help="Image for playback stage")
+parser.add_argument('--file', '-f', default='data/whisplay_test.mp4')
 parser.add_argument("--test_wav", default="data/test.wav")
 args = parser.parse_args()
+
+VIDEO_FILE = args.file
+
+MODE = "VIDEO"
+
+BASE_IMG = 'data/OdinSpecter_'
+
+STATUS_MODES = {
+    'wf_scn': 'WIFI_SCAN',
+    'wf_evil': 'EVIL_TWIN',
+    'connected': 'CONNECTED',
+    'ble_scan': "BLE_SCAN",
+    'ble_atk': "BLE_ATTACK"
+}
+
+STATUS_ASSETS = {}
 
 try:
     # 1. Load all image data first
@@ -266,24 +365,44 @@ try:
         args.img1, board.LCD_WIDTH, board.LCD_HEIGHT)
     img2_data = load_jpg_as_rgb565(
         args.img2, board.LCD_WIDTH, board.LCD_HEIGHT)
+    
+    # load status assets
+    for stat_key in STATUS_MODES:
+        STATUS_ASSETS[stat_key] = load_jpg_as_rgb565('{}{}.png'.format(BASE_IMG, STATUS_MODES[stat_key]), board.LCD_WIDTH, board.LCD_HEIGHT)
 
     # 2. Set volume
     set_wm8960_volume_stable("121")
 
-    # 3. Play startup audio at launch (displaying test2.jpg)
-    if os.path.exists(args.test_wav):
-        if img2_data:
-            board.draw_image(0, 0, board.LCD_WIDTH,
-                             board.LCD_HEIGHT, img2_data)
-        print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
-        subprocess.run(
-            ['aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
+    # 3.1 Play Bootanimation
+    if not shutil.which("ffmpeg"):
+        print("Error: ffmpeg not found in PATH.")
+        sys.exit(1)
+
+    if MODE == 'VIDEO' and os.path.exists(VIDEO_FILE):
+        try:
+            play_video(VIDEO_FILE)
+        except Exception as e:
+            print(f"Error: failed to play '{VIDEO_FILE}': {e}")
+            pass
+    else:
+        print(f"Error: {VIDEO_FILE} not found.")
+
+    # 3.2 Play startup audio at launch (displaying test2.jpg)
+    if MODE == 'AUDIO':
+        if os.path.exists(args.test_wav):
+            if img2_data:
+                board.draw_image(0, 0, board.LCD_WIDTH,
+                                board.LCD_HEIGHT, img2_data)
+            print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
+            subprocess.run(
+                ['aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
     # start_recording()
     # Start Recording Flag on next button press
     to_record = True
-
+    current_status = 'connected'
+    board.draw_image(0, 0, board.LCD_WIDTH,board.LCD_HEIGHT, STATUS_ASSETS[current_status])
     while True:
         sleep(0.1)
 
