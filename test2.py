@@ -164,7 +164,7 @@ def on_button_pressed():
             board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
 
         print(">>> Playing back recording (displaying test2)...")
-        subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
+        subprocess.run(['sudo','aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
     else:
         # 4. Automatically return to recording stage
         start_recording()
@@ -176,7 +176,7 @@ board.on_button_press(on_button_pressed)
 parser = argparse.ArgumentParser()
 parser.add_argument("--img1", default="data/OdinSpecter_4.png", help="Image for recording stage")
 parser.add_argument("--img2", default="data/OdinSpecter_2.png", help="Image for playback stage")
-parser.add_argument("--test_wav", default="data/test.wav")
+parser.add_argument("--test_wav", default="data/test.mp3")
 args = parser.parse_args()
 
 # read CUSTOM_FONT_PATH from environment variable
@@ -200,7 +200,7 @@ try:
                              board.LCD_HEIGHT, img2_data)
         print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
         subprocess.run(
-            ['aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
+            ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
     # start_recording()
