@@ -15,6 +15,7 @@ import textwrap
 from driver.Whisplay import WhisPlayBoard
 from utils import ColorUtils, ImageUtils, TextUtils
 
+sys.path.append(os.path.abspath("../driver"))
 
 GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
 
