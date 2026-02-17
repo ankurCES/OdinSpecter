@@ -205,7 +205,6 @@ try:
             ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
-    start_recording()
     # update()
 
     while True:
