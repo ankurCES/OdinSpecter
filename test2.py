@@ -61,7 +61,7 @@ import sys
 import os
 import argparse
 import subprocess
-
+import random
 from driver.Whisplay import WhisPlayBoard
 from utils import ColorUtils, ImageUtils, TextUtils
 from gemini import upload_and_generate
@@ -76,6 +76,20 @@ img2_data = None  # Playback stage (test2.jpg)
 REC_FILE = "data/recorded_voice.wav"
 recording_process = None
 to_record = True
+MODE = "VIDEO"
+
+BASE_IMG = 'data/OdinSpecter_'
+
+STATUS_MODES = {
+    'wf_scn': 'WIFI_SCAN',
+    'wf_evil': 'EVIL_TWIN',
+    'connected': 'CONNECTED',
+    'ble_scan': "BLE_SCAN",
+    'ble_atk': "BLE_ATTACK",
+    'ducky': 'RUBBER_DUCKY'
+}
+
+STATUS_ASSETS = {}
 
 def get_ffmpeg_cmd(video_path, width, height):
     model = "generic"
@@ -305,7 +319,9 @@ def on_button_pressed():
         color_sequence = [(255, 0, 0, 0xF800),
                         (0, 255, 0, 0x07E0), (0, 0, 255, 0x001F)]
         for r, g, b, hex_code in color_sequence:
-            board.fill_screen(hex_code)
+            # board.fill_screen(hex_code)
+            random_key = random.choice(list(STATUS_ASSETS.keys()))
+            board.draw_image(0, 0, board.LCD_WIDTH,board.LCD_HEIGHT, STATUS_ASSETS[random_key])
             board.set_rgb(r, g, b)
             sleep(0.4)
         board.set_rgb(0, 0, 0)
@@ -339,20 +355,6 @@ parser.add_argument("--test_wav", default="data/test.wav")
 args = parser.parse_args()
 
 VIDEO_FILE = args.file
-
-MODE = "VIDEO"
-
-BASE_IMG = 'data/OdinSpecter_'
-
-STATUS_MODES = {
-    'wf_scn': 'WIFI_SCAN',
-    'wf_evil': 'EVIL_TWIN',
-    'connected': 'CONNECTED',
-    'ble_scan': "BLE_SCAN",
-    'ble_atk': "BLE_ATTACK"
-}
-
-STATUS_ASSETS = {}
 
 try:
     # 1. Load all image data first
