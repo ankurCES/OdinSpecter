@@ -2,10 +2,14 @@ import os
 import json
 import requests
 import mimetypes
+import json
+
+with open('config.json', 'r') as file:
+    data = json.load(file)
 
 # Configuration
-API_KEY = os.getenv("GEMINI_API_KEY")
-AUDIO_PATH = "data/test.wav"
+API_KEY = data["GEMINI_API_KEY"]
+AUDIO_PATH = data["FILE"]
 DISPLAY_NAME = "AUDIO"
 
 def upload_and_generate():
