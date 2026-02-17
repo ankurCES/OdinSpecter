@@ -86,8 +86,9 @@ STATUS_MODES = {
     'connected': 'CONNECTED',
     # 'ble_scan': "BLE_SCAN",
     # 'ble_atk': "BLE_ATTACK",
-    # 'ducky': 'RUBBER_DUCKY'
-    'loading': 'LOADING'
+    # 'ducky': 'RUBBER_DUCKY',
+    'loading': 'LOADING',
+    'boot':'BOOT'
 }
 
 STATUS_ASSETS = {}
@@ -399,7 +400,7 @@ try:
         if os.path.exists(BOOTANIMATION):
             if img2_data:
                 board.draw_image(0, 0, board.LCD_WIDTH,
-                                board.LCD_HEIGHT, STATUS_ASSETS['loading'])
+                                board.LCD_HEIGHT, STATUS_ASSETS['boot'])
             # for boot_frame in bootanimation_load:
             #     board.draw_image(0, 0, board.LCD_WIDTH,
             #                     board.LCD_HEIGHT, boot_frame)
