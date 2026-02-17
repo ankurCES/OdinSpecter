@@ -144,6 +144,7 @@ def on_button_pressed():
     print(">>> Button pressed!")
 
     is_recording = not is_recording
+    print(">>> Recording stopped, processing...") if not is_recording else print(">>> Starting recording...")
 
     if is_recording:
         # 1. Stop recording
@@ -195,16 +196,16 @@ try:
     set_wm8960_volume_stable("121")
 
     # 3. Play startup audio at launch (displaying test2.jpg)
-    # if os.path.exists(args.test_wav):
-    #     if img2_data:
-    #         board.draw_image(0, 0, board.LCD_WIDTH,
-    #                          board.LCD_HEIGHT, img2_data)
-    #     print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
-    #     subprocess.run(
-    #         ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
+    if os.path.exists(args.test_wav):
+        if img2_data:
+            board.draw_image(0, 0, board.LCD_WIDTH,
+                             board.LCD_HEIGHT, img2_data)
+        print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
+        subprocess.run(
+            ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
-    start_recording()
+    # start_recording()
     # update()
 
     while True:
