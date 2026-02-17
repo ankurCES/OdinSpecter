@@ -372,7 +372,7 @@ try:
     boot_count = 0
     while boot_count < 37:
         boot_count =  boot_count+1
-        number = "0{}".format(boot_count) if boot_count >= 10 else "0{}".format(boot_count)
+        number = "0{}".format(boot_count) if boot_count >= 10 else "00{}".format(boot_count)
         
         bootanimation_load.append(load_jpg_as_rgb565('data/animation/ezgif-frame-{}.jpg'.format(number), board.LCD_WIDTH, board.LCD_HEIGHT))
 
