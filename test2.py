@@ -64,6 +64,7 @@ import subprocess
 
 from driver.Whisplay import WhisPlayBoard
 from utils import ColorUtils, ImageUtils, TextUtils
+from gemini import upload_and_generate
 
 # Initialize hardware
 board = WhisPlayBoard()
@@ -237,6 +238,8 @@ def on_button_pressed():
 
         print(">>> Playing back recording (displaying test2)...")
         subprocess.run(['aplay', '-D', 'plughw:wm8960soundcard', REC_FILE])
+        print(">>>>>>>>>>>>>>>>>>GEMINI>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        upload_and_generate()
     to_record = not to_record
 
 
