@@ -178,7 +178,7 @@ board.on_button_press(on_button_pressed)
 parser = argparse.ArgumentParser()
 parser.add_argument("--img1", default="data/OdinSpecter_4.png", help="Image for recording stage")
 parser.add_argument("--img2", default="data/OdinSpecter_2.png", help="Image for playback stage")
-parser.add_argument("--test_wav", default="data/test")
+parser.add_argument("--test_wav", default="data/test.wav")
 args = parser.parse_args()
 
 # read CUSTOM_FONT_PATH from environment variable
@@ -205,7 +205,7 @@ try:
             ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
-    # start_recording()
+    start_recording()
     # update()
 
     while True:
