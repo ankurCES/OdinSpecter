@@ -350,7 +350,7 @@ board.on_button_press(on_button_pressed)
 parser = argparse.ArgumentParser()
 parser.add_argument("--img1", default="data/OdinSpecter_4.png", help="Image for recording stage")
 parser.add_argument("--img2", default="data/OdinSpecter_2.png", help="Image for playback stage")
-parser.add_argument('--file', '-f', default='data/whisplay_test.mp4')
+parser.add_argument('--file', '-f', default='data/whisplay_test_3.mp4')
 parser.add_argument("--test_wav", default="data/test.wav")
 args = parser.parse_args()
 
