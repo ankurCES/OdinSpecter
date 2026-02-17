@@ -12,10 +12,9 @@ import threading
 import signal
 import pathlib
 import textwrap
+# sys.path.append(os.path.abspath("./driver"))
 from driver.Whisplay import WhisPlayBoard
 from utils import ColorUtils, ImageUtils, TextUtils
-
-sys.path.append(os.path.abspath("../driver"))
 
 GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
 
@@ -134,6 +133,10 @@ def start_recording():
         command = ['arecord', '-D', 'hw:wm8960soundcard',
                 '-f', 'S16_LE', '-r', '16000', '-c', '2', REC_FILE]
         recording_process = subprocess.Popen(command, shell=False, preexec_fn=os.setsid)
+        print(">>>>STODOUT")
+        print(recording_process.stdout)
+        print(">>>>STDERR")
+        print(recording_process.stderr)
     else:
         board.draw_image(0, 0, board.LCD_WIDTH, board.LCD_HEIGHT, img2_data)
 
