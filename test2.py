@@ -77,10 +77,6 @@ REC_FILE = "data/recorded_voice.wav"
 recording_process = None
 to_record = True
 
-GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
-
-print("Gemini API : ".format(GOOGLE_GEMINI_API_KEY))
-
 def get_ffmpeg_cmd(video_path, width, height):
     model = "generic"
     try:
