@@ -176,7 +176,7 @@ board.on_button_press(on_button_pressed)
 parser = argparse.ArgumentParser()
 parser.add_argument("--img1", default="data/OdinSpecter_4.png", help="Image for recording stage")
 parser.add_argument("--img2", default="data/OdinSpecter_2.png", help="Image for playback stage")
-parser.add_argument("--test_wav", default="data/test.mp3")
+parser.add_argument("--test_wav", default="data/test")
 args = parser.parse_args()
 
 # read CUSTOM_FONT_PATH from environment variable
@@ -194,16 +194,16 @@ try:
     set_wm8960_volume_stable("121")
 
     # 3. Play startup audio at launch (displaying test2.jpg)
-    if os.path.exists(args.test_wav):
-        if img2_data:
-            board.draw_image(0, 0, board.LCD_WIDTH,
-                             board.LCD_HEIGHT, img2_data)
-        print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
-        subprocess.run(
-            ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
+    # if os.path.exists(args.test_wav):
+    #     if img2_data:
+    #         board.draw_image(0, 0, board.LCD_WIDTH,
+    #                          board.LCD_HEIGHT, img2_data)
+    #     print(f">>> Playing startup audio: {args.test_wav} (displaying test2)")
+    #     subprocess.run(
+    #         ['sudo','aplay', '-D', 'plughw:wm8960soundcard', args.test_wav])
 
     # 4. After audio finishes, enter recording loop
-    # start_recording()
+    start_recording()
     # update()
 
     while True:
