@@ -150,8 +150,8 @@ def generate_gemini_speech(text, output_filename="data/answer.wav", voice="Leda"
         subprocess.run([
             'ffmpeg', '-y', 
             '-f', 's16le', 
-            '-ar', '24000', 
-            '-ac', '1', 
+            '-ar', '16000', 
+            '-ac', '2', 
             '-i', temp_pcm, 
             output_filename
         ], check=True, capture_output=True)
