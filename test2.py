@@ -226,13 +226,7 @@ import os
 import argparse
 import subprocess
 
-# Import driver
-sys.path.append(os.path.abspath("./driver"))
-try:
-    from WhisPlay import WhisPlayBoard
-except ImportError:
-    print("Error: WhisPlay driver not found.")
-    sys.exit(1)
+from driver.Whisplay import WhisPlayBoard
 
 # Initialize hardware
 board = WhisPlayBoard()
