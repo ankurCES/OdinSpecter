@@ -110,7 +110,7 @@ def get_response(text):
     print(answer)
     if len(answer) < 3000 and "```text" not in answer:
         generate_gemini_speech(answer)
-    elif "```text" not in answer and len(answer) > 3000:
+    elif "```text" in answer or len(answer) > 3000:
         generate_gemini_speech("Creating Security Payload. Please wait while I create the payload and execute it!.")
 
 def generate_gemini_speech(text, output_filename="data/answer.wav", voice="Leda"):
