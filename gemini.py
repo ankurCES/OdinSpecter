@@ -8,6 +8,9 @@ import subprocess
 with open('config.json', 'r') as file:
     data = json.load(file)
 
+with open('data/guardrail.yaml', 'r') as file:
+    guardrail = file.read()
+
 # Configuration
 API_KEY = data["GEMINI_API_KEY"]
 AUDIO_PATH = data["FILE"]
@@ -58,7 +61,7 @@ def upload_and_generate():
     payload = {
         "contents": [{
             "parts": [
-                {"text": "Transcribe this audio clip"},
+                {"text": "Transcribe the audio"},
                 {"file_data": {"mime_type": mime_type, "file_uri": file_uri}}
             ]
         }]
@@ -79,6 +82,13 @@ def get_response(text):
     url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent"
 
     payload = json.dumps({
+    "system_instruction": {
+      "parts": [
+        {
+          "text": guardrail
+        }
+      ]
+    },
     "contents": [
         {
         "parts": [
