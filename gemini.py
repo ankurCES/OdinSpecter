@@ -108,9 +108,9 @@ def get_response(text):
     result = response.json()
     answer = result['candidates'][0]['content']['parts'][0]['text']
     print(answer)
-    if len(answer) < 3000 and answer.substring("```text") == -1:
+    if len(answer) < 3000 and "```text" not in answer:
         generate_gemini_speech(answer)
-    elif answer.substring("```text") > -1:
+    elif "```text" not in answer and len(answer) > 3000:
         generate_gemini_speech("Creating Security Payload. Please wait while I create the payload and execute it!.")
 
 def generate_gemini_speech(text, output_filename="data/answer.wav", voice="Leda"):
