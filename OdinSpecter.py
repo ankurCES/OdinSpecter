@@ -20,10 +20,6 @@ REC_FILE = "data/recorded_voice.wav"
 recording_process = None
 to_record = True
 
-GOOGLE_GEMINI_API_KEY = os.environ['GOOGLE_GEMINI_API_KEY']
-
-print("Gemini API : ".format(GOOGLE_GEMINI_API_KEY))
-
 def update_display_data(status=None, emoji=None, text=None, 
                   scroll_speed=None, battery_level=None, battery_color=None, image_path=None):
     global current_status, current_emoji, current_text, current_battery_level
